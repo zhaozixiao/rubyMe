@@ -10,3 +10,4 @@ node_modules/
 yarn-debug.log*
 .yarn-integrity
 log/development.log
+.idea/

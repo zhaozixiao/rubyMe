@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/rubyMe.iml" filepath="$PROJECT_DIR$/.idea/rubyMe.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/todoItems.iml" filepath="$PROJECT_DIR$/.idea/modules/todoItems.iml" />
     </modules>
   </component>
 </project>
