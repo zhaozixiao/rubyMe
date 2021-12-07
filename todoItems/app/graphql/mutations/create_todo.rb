@@ -5,7 +5,7 @@ module Mutations
     argument :reference, String, required: true
 
     # return type from the mutation
-    type Types::LinkType
+    type Types::TodoType
 
     def resolve(description: nil, reference: nil)
       Todo.create!(
