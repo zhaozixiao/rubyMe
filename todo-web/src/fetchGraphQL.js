@@ -1,6 +1,6 @@
 async function fetchGraphQL(text, variables) {
     // fetch data from the rails server
-    const response  = await fetch('http://localhost:3000/graphql', {
+    const response  = await fetch('http://localhost:3001/graphql', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
