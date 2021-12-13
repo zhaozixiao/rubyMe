@@ -3,5 +3,6 @@ module Types
     field :id, ID, null: false
     field :description, String, null: false
     field :reference, String, null: false
+    field :status, String, null: false
   end
 end
