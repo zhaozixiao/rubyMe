@@ -5,9 +5,25 @@ import Form from "./components/Form";
 import FilterButton from "./components/FilterButton";
 import Todo from "./components/Todo";
 
+const FILTER_MAP = {
+  All: () => true,
+  Active: task => task.status === 'active',
+  Completed: task => task.status === 'complete'
+};
+const FILTER_NAMES = Object.keys(FILTER_MAP);
+
 function App(props) {
   const [tasks, setTasks] = useState(null);
   const [headingText, setHeadingText] = useState(null);
+  const [filter, setFilter] = useState('All');
+  const filterList = FILTER_NAMES.map(name => (
+    <FilterButton
+      key={name}
+      name={name}
+      isPressed={name === filter}
+      setFilter={setFilter}
+    />
+  ));
   useEffect(() => {
     let isMounted = true;
     fetchGraphQL(`
@@ -16,6 +32,7 @@ function App(props) {
           id
           reference
           description
+          status
         }
       }
     `).then(response => {
@@ -23,21 +40,10 @@ function App(props) {
       if (!isMounted) {
         return;
       }
-      console.log(response.data.allTodos);
-      const taskList = response.data.allTodos.map(task => (
-        <Todo
-          id={task.id || "todo-" + nanoid()}
-          name={task.description}
-          completed={task.completed || false}
-          key={task.id || nanoid()}
-          toggleTaskCompleted={toggleTaskCompleted}
-          deleteTask={deleteTask}
-          editTask={editTask}
-        />
-      ));
-      setTasks(taskList);
-      const tasksNoun = taskList.length !== 1 ? 'tasks' : 'task';
-      setHeadingText(`${taskList.length} ${tasksNoun} remaining`);
+      const result = response.data.allTodos
+      setTasks(result);
+      const tasksNoun = result.length !== 1 ? 'tasks' : 'task';
+      setHeadingText(`${result.length} ${tasksNoun} remaining`);
       console.log(headingText);
     }).catch(error => {
       console.error(error);
@@ -86,9 +92,7 @@ function App(props) {
       <h1>TodoMatic</h1>
       <Form addTask={addTask} />
       <div className="filters btn-group stack-exception">
-        <FilterButton />
-        <FilterButton />
-        <FilterButton />
+        {filterList}
       </div>
       <h2 id="list-heading">
         {headingText != null? headingText : "Loading"}
@@ -98,7 +102,19 @@ function App(props) {
         className="todo-list stack-large stack-exception"
         aria-labelledby="list-heading"
       >
-        {tasks != null? tasks : "Loading"}
+        {tasks != null? tasks
+        .filter(FILTER_MAP[filter])
+        .map(task => (
+        <Todo
+          id={task.id}
+          name={task.description}
+          completed={task.status === 'complete' || false}
+          key={task.id}
+          toggleTaskCompleted={toggleTaskCompleted}
+          deleteTask={deleteTask}
+          editTask={editTask}
+        />
+      )) : "Loading"}
       </ul>
     </div>
   );
