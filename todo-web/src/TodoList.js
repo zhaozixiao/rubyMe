@@ -4,12 +4,12 @@ import Form from "./components/Form";
 import FilterButton from "./components/FilterButton";
 import Todo from "./components/Todo";
 import React, { useState, useEffect } from "react";
-import graphql from 'babel-plugin-relay/macro';
 import {
+  graphql,
   RelayEnvironmentProvider,
   loadQuery,
   usePreloadedQuery,
-} from 'react-relay/hooks';
+} from 'react-relay';
 const { Suspense } = React;
 
 const FILTER_MAP = {

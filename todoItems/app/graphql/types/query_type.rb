@@ -8,7 +8,7 @@ module Types
     # They will be entry points for queries on your schema.
     field :all_todos, [TodoType], null: false
     def all_todos
-      Todo.all
+      Todo.order(created_at: :desc).all
     end
   end
 end
