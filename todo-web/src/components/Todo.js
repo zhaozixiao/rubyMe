@@ -53,15 +53,17 @@ export default function Todo(props) {
       </form>
     );
     const viewTemplate = (
-      <div className="stack-small">
+      <div className="stack-small" disabled={props.status === 'deleted'}>
         <div className="c-cb">
           <input
             id={props.id}
             type="checkbox"
             defaultChecked={props.completed}
-            onChange={() => props.toggleTaskCompleted(props.id)}
+            onChange={() => props.toggleTaskCompleted(props.id, props.status)}
+            disabled={props.status === 'deleted'}
           />
-          <label className="todo-label" htmlFor={props.id}>
+          <label className="todo-label" htmlFor={props.id} style={props.status === 'deleted'?
+          {textDecorationLine: 'line-through', textDecorationStyle: 'solid'} : {}}>
             {props.name}
           </label>
         </div>
@@ -71,6 +73,7 @@ export default function Todo(props) {
             className="btn"
             onClick={() => setEditing(true)}
             ref={editButtonRef}
+            disabled={props.status === 'deleted'}
           >
             Edit <span className="visually-hidden">{props.name}</span>
           </button>
@@ -78,6 +81,7 @@ export default function Todo(props) {
             type="button"
             className="btn btn__danger"
             onClick={() => props.deleteTask(props.id)}
+            disabled={props.status === 'deleted'}
           >
             Delete <span className="visually-hidden">{props.name}</span>
           </button>

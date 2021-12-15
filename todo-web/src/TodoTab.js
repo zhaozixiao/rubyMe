@@ -1,5 +1,4 @@
 import RelayEnvironment from './RelayEnvironment';
-import { nanoid } from "nanoid";
 import Form from "./components/Form";
 import FilterButton from "./components/FilterButton";
 import TodoList from "./components/TodoList";
@@ -8,9 +7,21 @@ import {
   RelayEnvironmentProvider,
   loadQuery,
   useQueryLoader,
+  graphql,
+  commitMutation,
 } from 'react-relay';
 
-const TodoListGetAllTodosQuery = require('./__generated__/TodoListGetAllTodosQuery.graphql');
+const TodoListGetAllTodosQuery = graphql`
+query TodoTabGetAllTodosQuery {
+    allTodos {
+    id
+    reference
+    description
+    status
+    }
+}
+`;
+
 const { Suspense } = React;
 const FILTER_MAP = {
   All: () => true,
@@ -32,6 +43,43 @@ function TodoTab(props) {
     TodoListGetAllTodosQuery,
     props.initialQueryRef
   );
+  function commitCreateTodoMutation(
+    input,
+  ) {
+    return commitMutation<FeedbackLikeMutation>(RelayEnvironment, {
+      mutation: graphql`
+      mutation TodoTabCreateTodoMutation($input: CreateTodoInput!) {
+        createTodo(input: $input) {
+          id
+          description
+          reference
+        }
+      }
+      `,
+      variables: {input},
+      onCompleted: response => { loadTodosQuery({}, {fetchPolicy: 'network-only'}); } /* Mutation completed */,
+      onError: error => {} /* Mutation errored */,
+    });
+  };
+  function commitEditTodoMutation(
+    input,
+  ) {
+    return commitMutation<FeedbackLikeMutation>(RelayEnvironment, {
+      mutation: graphql`
+      mutation TodoTabEditTodoMutation($input: UpdateTodoInput!) {
+        updateTodo(input: $input) {
+          id
+          description
+          reference
+          status
+        }
+      }
+      `,
+      variables: {input},
+      onCompleted: response => { loadTodosQuery({}, {fetchPolicy: 'network-only'}); } /* Mutation completed */,
+      onError: error => {} /* Mutation errored */,
+    });
+  };
   const [filter, setFilter] = useState('All');
   const filterList = FILTER_NAMES.map(name => (
     <FilterButton
@@ -42,16 +90,31 @@ function TodoTab(props) {
     />
   ));
   function addTask(name) {
-    const newTask = { id: "todo-" + nanoid(), name: name, completed: false };
+    commitCreateTodoMutation({
+      description: name,
+      reference: 'web',
+    });
   }
-  function toggleTaskCompleted(id) {
-    
+  function toggleTaskCompleted(id, curstatus) {
+    commitEditTodoMutation({
+      id,
+      user: 'admin',
+      status: (curstatus === 'complete')? 'active': 'complete',
+    });
   }
   function deleteTask(id) {
-    
+    commitEditTodoMutation({
+      id,
+      user: 'admin',
+      status: 'deleted',
+    });
   }
   function editTask(id, newName) {
-    loadTodosQuery({}, {fetchPolicy: 'network-only'});
+    commitEditTodoMutation({
+      id,
+      user: 'admin',
+      description: newName,
+    });
   }
   return (
     <div className="todoapp stack-large">

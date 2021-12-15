@@ -45,6 +45,7 @@ export default function TodoList(props) {
                 <Todo
                 id={task.id}
                 name={task.description}
+                status={task.status}
                 completed={task.status === 'complete' || false}
                 key={task.id}
                 toggleTaskCompleted={toggleTaskCompleted}
