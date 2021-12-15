@@ -12,19 +12,12 @@ const FILTER_MAP = {
     Deleted: task => task.status === 'deleted'
 };
 
+const TodoQuery = require('../__generated__/TodoTabGetAllTodosQuery.graphql');
+
 export default function TodoList(props) {
     const {filter, queryRef, toggleTaskCompleted, deleteTask, editTask } = props;
     const { allTodos: tasks } = usePreloadedQuery(
-        graphql`
-            query TodoListGetAllTodosQuery {
-                allTodos {
-                id
-                reference
-                description
-                status
-                }
-            }
-        `,
+        TodoQuery,
         queryRef
     );
     const tasksNoun = tasks.filter(FILTER_MAP[filter]).length !== 1 ? 'tasks' : 'task';

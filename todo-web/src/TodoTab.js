@@ -46,7 +46,7 @@ function TodoTab(props) {
   function commitCreateTodoMutation(
     input,
   ) {
-    return commitMutation<FeedbackLikeMutation>(RelayEnvironment, {
+    return commitMutation(RelayEnvironment, {
       mutation: graphql`
       mutation TodoTabCreateTodoMutation($input: CreateTodoInput!) {
         createTodo(input: $input) {
@@ -64,7 +64,7 @@ function TodoTab(props) {
   function commitEditTodoMutation(
     input,
   ) {
-    return commitMutation<FeedbackLikeMutation>(RelayEnvironment, {
+    return commitMutation(RelayEnvironment, {
       mutation: graphql`
       mutation TodoTabEditTodoMutation($input: UpdateTodoInput!) {
         updateTodo(input: $input) {
