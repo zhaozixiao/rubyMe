@@ -11,7 +11,7 @@ import {
   commitMutation,
 } from 'react-relay';
 
-const TodoListGetAllTodosQuery = graphql`
+const TodoTabGetAllTodosQuery = graphql`
 query TodoTabGetAllTodosQuery {
     allTodos {
     id
@@ -30,7 +30,7 @@ const FILTER_MAP = {
   Deleted: task => task.status === 'deleted'
 };
 const FILTER_NAMES = Object.keys(FILTER_MAP);
-const initialQueryRef = loadQuery(RelayEnvironment, TodoListGetAllTodosQuery, {
+const initialQueryRef = loadQuery(RelayEnvironment, TodoTabGetAllTodosQuery, {
   /* query variables */
 });
 
@@ -40,7 +40,7 @@ function TodoTab(props) {
     todosQueryRef,
     loadTodosQuery,
   ] = useQueryLoader(
-    TodoListGetAllTodosQuery,
+    TodoTabGetAllTodosQuery,
     props.initialQueryRef
   );
   function commitCreateTodoMutation(
