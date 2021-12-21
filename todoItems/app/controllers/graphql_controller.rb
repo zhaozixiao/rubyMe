@@ -5,12 +5,13 @@ class GraphqlController < ApplicationController
   # protect_from_forgery with: :null_session
   skip_before_action :verify_authenticity_token
   def execute
-    variables = prepare_variables(params[:variables])
+    variables = ensure_hash(params[:variables])
     query = params[:query]
     operation_name = params[:operationName]
     context = {
-      # Query context goes here, for example:
-      # current_user: current_user,
+      # we need to provide session and current user
+      session: session,
+      current_user: current_user
     }
     result = TodoItemsSchema.execute(query, variables: variables, context: context, operation_name: operation_name)
     render json: result
@@ -21,23 +22,36 @@ class GraphqlController < ApplicationController
 
   private
 
+  # gets current user from token stored in the session
+  def current_user
+    # if we want to change the sign-in strategy, this is the place to do it
+    return unless session[:token] and Rails.env.development?
+
+    raise "token not found" unless session[:token]
+
+    crypt = ActiveSupport::MessageEncryptor.new(Rails.application.credentials.secret_key_base.byteslice(0..31))
+    token = crypt.decrypt_and_verify session[:token]
+    user_id = token.gsub('user-id:', '').to_i
+    User.find user_id
+  rescue ActiveSupport::MessageVerifier::InvalidSignature
+    nil
+  end
+
   # Handle variables in form data, JSON body, or a blank value
-  def prepare_variables(variables_param)
-    case variables_param
+  def ensure_hash(ambiguous_param)
+    case ambiguous_param
     when String
-      if variables_param.present?
-        JSON.parse(variables_param) || {}
+      if ambiguous_param.present?
+        ensure_hash(JSON.parse(ambiguous_param))
       else
         {}
       end
-    when Hash
-      variables_param
-    when ActionController::Parameters
-      variables_param.to_unsafe_hash # GraphQL-Ruby will validate name and type of incoming variables.
+    when Hash, ActionController::Parameters
+      ambiguous_param
     when nil
       {}
     else
-      raise ArgumentError, "Unexpected parameter: #{variables_param}"
+      raise ArgumentError, "Unexpected parameter: #{ambiguous_param}"
     end
   end
 
